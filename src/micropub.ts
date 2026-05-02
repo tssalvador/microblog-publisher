@@ -36,7 +36,7 @@ export async function publishPost(
   });
 
   if (res.status >= 400) {
-    throw new Error(`Micropub publish ${res.status}: ${res.text}`);
+    throw new Error(`Micropub publish ${res.status}: ${responseErrorText(res.text)}`);
   }
 
   const url = locationFromHeaders(res.headers);
@@ -53,21 +53,11 @@ export async function updatePost(
   const replace: Record<string, unknown[]> = {
     content: [post.content]
   };
-  const deleteProperties: string[] = [];
 
   if (post.title) replace.name = [post.title];
-  else deleteProperties.push("name");
-
   if (post.categories.length) replace.category = post.categories;
-  else deleteProperties.push("category");
 
-  const body: {
-    action: "update";
-    url: string;
-    replace: Record<string, unknown[]>;
-    delete?: string[];
-  } = { action: "update", url, replace };
-  if (deleteProperties.length) body.delete = deleteProperties;
+  const body = { action: "update", url, replace };
 
   const res = await requestUrl({
     url: settings.micropubEndpoint,
@@ -81,7 +71,7 @@ export async function updatePost(
   });
 
   if (res.status >= 400) {
-    throw new Error(`Micropub update ${res.status}: ${res.text}`);
+    throw new Error(`Micropub update ${res.status}: ${responseErrorText(res.text)}`);
   }
 }
 
@@ -117,7 +107,7 @@ export async function uploadMedia(
   });
 
   if (res.status >= 400) {
-    throw new Error(`Media upload ${res.status}: ${res.text}`);
+    throw new Error(`Media upload ${res.status}: ${responseErrorText(res.text)}`);
   }
 
   const url = locationFromHeaders(res.headers);
@@ -141,7 +131,7 @@ export async function fetchSyndicationTargets(
     throw: false
   });
   if (res.status >= 400) {
-    throw new Error(`Syndication query ${res.status}: ${res.text}`);
+    throw new Error(`Syndication query ${res.status}: ${responseErrorText(res.text)}`);
   }
   const json = res.json as { "syndicate-to"?: SyndicationTarget[] };
   return json["syndicate-to"] ?? [];
@@ -170,4 +160,15 @@ function guessMime(filename: string): string {
 
 function escapeQuotedString(value: string): string {
   return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\r|\n/g, " ");
+}
+
+function responseErrorText(text: string): string {
+  const stripped = text
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return (stripped || text || "No error details returned.").slice(0, 300);
 }
