@@ -91,7 +91,9 @@ export class MicroblogSettingTab extends PluginSettingTab {
         })
       );
 
-    containerEl.createEl("h3", { text: "Cross-posting" });
+    new Setting(containerEl)
+      .setName("Cross-posting")
+      .setHeading();
 
     new Setting(containerEl)
       .setName("Mastodon syndication UID")
@@ -127,9 +129,8 @@ export class MicroblogSettingTab extends PluginSettingTab {
               new Notice("No syndication targets configured on micro.blog.");
               return;
             }
-            console.log("microblog-publisher syndication targets:", targets);
             const summary = targets.map((t) => `${t.name}: ${t.uid}`).join("\n");
-            new Notice(`Targets (also logged to console):\n${summary}`, 30000);
+            new Notice(`Syndication targets:\n${summary}`, 30000);
           } catch (err) {
             console.error(err);
             new Notice(`Fetch failed: ${err instanceof Error ? err.message : String(err)}`);

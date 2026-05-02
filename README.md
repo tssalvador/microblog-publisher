@@ -30,6 +30,13 @@ Publish the active Obsidian note to Micro.blog with Micropub. The plugin support
 
 By default, publishes send a blank `mp-syndicate-to` value so Micro.blog does not cross-post to every configured service. Cross-posting happens only when a note opts in with frontmatter and a matching syndication UID is configured.
 
+## Disclosures
+
+- Requires a Micro.blog account and app token.
+- Sends post content, categories, selected frontmatter-derived publishing metadata, and embedded local images to Micro.blog when you run a publish or update command.
+- Makes network requests only to the configured Micropub and media endpoints.
+- Does not include telemetry, ads, or analytics.
+
 ## Note Frontmatter
 
 ```yaml
