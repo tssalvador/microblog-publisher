@@ -2,36 +2,30 @@ import { requestUrl } from "obsidian";
 import type { AuthenticatedMicroblogSettings } from "./settings";
 import type { ExtractedPost, PublishResult } from "./note";
 
-interface MicropubPayload {
-  type: string[];
-  properties: Record<string, unknown[]>;
-}
-
 export async function publishPost(
   settings: AuthenticatedMicroblogSettings,
   post: ExtractedPost,
   status: "published" | "draft"
 ): Promise<PublishResult> {
-  const payload: MicropubPayload = {
-    type: ["h-entry"],
-    properties: {
-      content: [post.content]
-    }
-  };
-  if (post.title) payload.properties.name = [post.title];
-  if (post.categories.length) payload.properties.category = post.categories;
-  payload.properties["mp-syndicate-to"] = post.syndicateTo.length ? post.syndicateTo : [""];
-  if (settings.blogUrl) payload.properties["mp-destination"] = [settings.blogUrl];
-  if (status === "draft") payload.properties["post-status"] = ["draft"];
+  const payload = new URLSearchParams();
+  payload.set("h", "entry");
+  payload.set("content", post.content);
+  if (post.title) payload.set("name", post.title);
+  for (const category of post.categories) payload.append("category[]", category);
+  for (const target of post.syndicateTo.length ? post.syndicateTo : [""]) {
+    payload.append("mp-syndicate-to[]", target);
+  }
+  if (settings.blogUrl) payload.set("mp-destination", settings.blogUrl);
+  if (status === "draft") payload.set("post-status", "draft");
 
   const res = await requestUrl({
     url: settings.micropubEndpoint,
     method: "POST",
     headers: {
       Authorization: `Bearer ${settings.token}`,
-      "Content-Type": "application/json"
+      "Content-Type": "application/x-www-form-urlencoded"
     },
-    body: JSON.stringify(payload),
+    body: payload.toString(),
     throw: false
   });
 
