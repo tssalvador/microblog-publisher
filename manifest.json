@@ -1,0 +1,10 @@
+{
+  "id": "microblog-publisher",
+  "name": "Micro.blog Publisher",
+  "version": "0.2.0",
+  "minAppVersion": "1.11.4",
+  "description": "Publish notes to micro.blog using the Micropub API. Supports drafts, categories, image uploads, and editing existing posts.",
+  "author": "Brad Barrish",
+  "authorUrl": "https://bradbarrish.com",
+  "isDesktopOnly": false
+}
