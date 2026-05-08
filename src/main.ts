@@ -39,7 +39,8 @@ export default class MicroblogPublisher extends Plugin {
     const loadedData = await this.loadData();
     const loaded = isRecord(loadedData) ? loadedData : {};
     const legacyToken = typeof loaded?.token === "string" ? loaded.token.trim() : "";
-    const { token: _token, ...settings } = loaded ?? {};
+    const settings = { ...loaded };
+    delete settings.token;
     this.settings = Object.assign({}, DEFAULT_SETTINGS, settings);
 
     if (legacyToken && !this.getToken()) {
@@ -116,7 +117,7 @@ export default class MicroblogPublisher extends Plugin {
     }
     const url = this.app.metadataCache.getFileCache(file)?.frontmatter?.microblog_url;
     if (typeof url !== "string") {
-      new Notice("This note has no micro.blog URL in frontmatter.");
+      new Notice("This note has no Micro.blog url in frontmatter.");
       return;
     }
     try {

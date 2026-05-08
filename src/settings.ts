@@ -49,8 +49,8 @@ export class MicroblogSettingTab extends PluginSettingTab {
       });
 
     new Setting(containerEl)
-      .setName("Blog URL")
-      .setDesc("Your Micro.blog site URL. Sent as the Micropub destination for accounts with multiple blogs.")
+      .setName("Blog address")
+      .setDesc("Your Micro.blog site address. Sent as the micropub destination for accounts with multiple blogs.")
       .addText((text) =>
         text.setValue(this.plugin.settings.blogUrl).onChange(async (value) => {
           this.plugin.settings.blogUrl = value.trim();
@@ -96,13 +96,13 @@ export class MicroblogSettingTab extends PluginSettingTab {
       .setHeading();
 
     new Setting(containerEl)
-      .setName("Mastodon syndication UID")
+      .setName("Mastodon syndication id")
       .setDesc(
-        "The UID micro.blog uses for your Mastodon account. Posts cross-post only when frontmatter sets `mastodon: true`."
+        "The id Micro.blog uses for your Mastodon account. Posts cross-post only when frontmatter sets `mastodon: true`."
       )
       .addText((text) =>
         text
-          .setPlaceholder("https://...")
+          .setPlaceholder("mastodon target id")
           .setValue(this.plugin.settings.mastodonTargetUid)
           .onChange(async (value) => {
             this.plugin.settings.mastodonTargetUid = value.trim();
@@ -112,7 +112,7 @@ export class MicroblogSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Fetch syndication targets")
-      .setDesc("Asks micro.blog which destinations are configured. Copy the Mastodon UID into the field above.")
+      .setDesc("Asks Micro.blog which destinations are configured. Copy the Mastodon id into the field above.")
       .addButton((btn) =>
         btn.setButtonText("Fetch").onClick(async () => {
           const token = this.plugin.getToken();
