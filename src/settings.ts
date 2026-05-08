@@ -50,7 +50,7 @@ export class MicroblogSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Blog address")
-      .setDesc("Your Micro.blog site address. Sent as the micropub destination for accounts with multiple blogs.")
+      .setDesc("Your blog address. Used to choose the destination for accounts with multiple blogs.")
       .addText((text) =>
         text.setValue(this.plugin.settings.blogUrl).onChange(async (value) => {
           this.plugin.settings.blogUrl = value.trim();
@@ -59,8 +59,8 @@ export class MicroblogSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("Micropub endpoint")
-      .setDesc("Default works for micro.blog. Only change if you know why.")
+      .setName("Publishing endpoint")
+      .setDesc("Default works for Micro.blog. Only change if you know why.")
       .addText((text) =>
         text.setValue(this.plugin.settings.micropubEndpoint).onChange(async (value) => {
           this.plugin.settings.micropubEndpoint = value.trim();
@@ -96,13 +96,13 @@ export class MicroblogSettingTab extends PluginSettingTab {
       .setHeading();
 
     new Setting(containerEl)
-      .setName("Mastodon syndication id")
+      .setName("Mastodon target")
       .setDesc(
-        "The id Micro.blog uses for your Mastodon account. Posts cross-post only when frontmatter sets `mastodon: true`."
+        "The syndication target for your Mastodon account. Posts cross-post only when frontmatter sets `mastodon: true`."
       )
       .addText((text) =>
         text
-          .setPlaceholder("mastodon target id")
+          .setPlaceholder("mastodon target")
           .setValue(this.plugin.settings.mastodonTargetUid)
           .onChange(async (value) => {
             this.plugin.settings.mastodonTargetUid = value.trim();
@@ -112,7 +112,7 @@ export class MicroblogSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Fetch syndication targets")
-      .setDesc("Asks Micro.blog which destinations are configured. Copy the Mastodon id into the field above.")
+      .setDesc("Asks Micro.blog which destinations are configured. Copy the Mastodon target into the field above.")
       .addButton((btn) =>
         btn.setButtonText("Fetch").onClick(async () => {
           const token = this.plugin.getToken();

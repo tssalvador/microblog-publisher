@@ -117,7 +117,7 @@ export default class MicroblogPublisher extends Plugin {
     }
     const url = this.app.metadataCache.getFileCache(file)?.frontmatter?.microblog_url;
     if (typeof url !== "string") {
-      new Notice("This note has no Micro.blog url in frontmatter.");
+      new Notice("This note has no published post address in frontmatter.");
       return;
     }
     try {
