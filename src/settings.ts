@@ -3,6 +3,7 @@ import { fetchSyndicationTargets } from "./micropub";
 import type MicroblogPublisher from "./main";
 
 export interface MicroblogSettings {
+  tokenSecretId: string;
   micropubEndpoint: string;
   mediaEndpoint: string;
   blogUrl: string;
@@ -17,6 +18,7 @@ export interface AuthenticatedMicroblogSettings extends MicroblogSettings {
 export const MICROBLOG_TOKEN_SECRET_ID = "microblog-publisher-token";
 
 export const DEFAULT_SETTINGS: MicroblogSettings = {
+  tokenSecretId: MICROBLOG_TOKEN_SECRET_ID,
   micropubEndpoint: "https://micro.blog/micropub",
   mediaEndpoint: "https://micro.blog/micropub/media",
   blogUrl: "",
@@ -43,9 +45,10 @@ export class MicroblogSettingTab extends PluginSettingTab {
       );
 
     new SecretComponent(this.app, tokenSetting.controlEl)
-      .setValue(this.plugin.getToken() ?? "")
-      .onChange((value) => {
-        this.plugin.setToken(value.trim());
+      .setValue(this.plugin.settings.tokenSecretId)
+      .onChange(async (value) => {
+        this.plugin.settings.tokenSecretId = value.trim() || MICROBLOG_TOKEN_SECRET_ID;
+        await this.plugin.saveSettings();
       });
 
     new Setting(containerEl)

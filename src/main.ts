@@ -42,6 +42,9 @@ export default class MicroblogPublisher extends Plugin {
     const settings = { ...loaded };
     delete settings.token;
     this.settings = Object.assign({}, DEFAULT_SETTINGS, settings);
+    if (!this.settings.tokenSecretId) {
+      this.settings.tokenSecretId = MICROBLOG_TOKEN_SECRET_ID;
+    }
 
     if (legacyToken && !this.getToken()) {
       this.setToken(legacyToken);
@@ -57,11 +60,11 @@ export default class MicroblogPublisher extends Plugin {
   }
 
   getToken(): string | null {
-    return this.app.secretStorage.getSecret(MICROBLOG_TOKEN_SECRET_ID);
+    return this.app.secretStorage.getSecret(this.settings.tokenSecretId);
   }
 
   setToken(token: string): void {
-    this.app.secretStorage.setSecret(MICROBLOG_TOKEN_SECRET_ID, token);
+    this.app.secretStorage.setSecret(this.settings.tokenSecretId, token);
   }
 
   private getAuthenticatedSettings(): AuthenticatedMicroblogSettings | null {
