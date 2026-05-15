@@ -41,7 +41,7 @@ export class MicroblogSettingTab extends PluginSettingTab {
     const tokenSetting = new Setting(containerEl)
       .setName("App token")
       .setDesc(
-        "Generate at micro.blog/account/apps. Stored using Obsidian's secret storage."
+        "Generate at Micro.blog/account/apps. Stored using Obsidian's secret storage."
       );
 
     new SecretComponent(this.app, tokenSetting.controlEl)
@@ -105,7 +105,7 @@ export class MicroblogSettingTab extends PluginSettingTab {
       )
       .addText((text) =>
         text
-          .setPlaceholder("mastodon target")
+          .setPlaceholder("Mastodon target")
           .setValue(this.plugin.settings.mastodonTargetUid)
           .onChange(async (value) => {
             this.plugin.settings.mastodonTargetUid = value.trim();
@@ -129,7 +129,7 @@ export class MicroblogSettingTab extends PluginSettingTab {
               token
             });
             if (!targets.length) {
-              new Notice("No syndication targets configured on micro.blog.");
+              new Notice("No syndication targets configured on Micro.blog.");
               return;
             }
             const summary = targets.map((t) => `${t.name}: ${t.uid}`).join("\n");

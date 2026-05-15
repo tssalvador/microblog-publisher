@@ -36,7 +36,7 @@ export default class MicroblogPublisher extends Plugin {
   }
 
   async loadSettings() {
-    const loadedData = await this.loadData();
+    const loadedData: unknown = await this.loadData();
     const loaded = isRecord(loadedData) ? loadedData : {};
     const legacyToken = typeof loaded?.token === "string" ? loaded.token.trim() : "";
     const settings = { ...loaded };
@@ -87,11 +87,18 @@ export default class MicroblogPublisher extends Plugin {
   private runUpdate(checking: boolean): boolean {
     const file = this.getActiveFile();
     if (!file) return false;
-    const url = this.app.metadataCache.getFileCache(file)?.frontmatter?.microblog_url;
+    const url = this.getPublishedUrl(file);
     if (!url) return false;
     if (checking) return true;
     void this.update(file);
     return true;
+  }
+
+  private getPublishedUrl(file: TFile): string | undefined {
+    const frontmatter: unknown = this.app.metadataCache.getFileCache(file)?.frontmatter;
+    if (!isRecord(frontmatter)) return undefined;
+    const url = frontmatter.microblog_url;
+    return typeof url === "string" ? url : undefined;
   }
 
   private async publish(file: TFile, status: "published" | "draft") {
@@ -118,8 +125,8 @@ export default class MicroblogPublisher extends Plugin {
       new Notice("Set your micro.blog app token in settings first.");
       return;
     }
-    const url = this.app.metadataCache.getFileCache(file)?.frontmatter?.microblog_url;
-    if (typeof url !== "string") {
+    const url = this.getPublishedUrl(file);
+    if (!url) {
       new Notice("This note has no published post address in frontmatter.");
       return;
     }

@@ -63,11 +63,9 @@ async function processImages(
   body: string,
   settings: AuthenticatedMicroblogSettings
 ): Promise<string> {
-  const fm = app.metadataCache.getFileCache(file)?.frontmatter ?? {};
-  const cached: Record<string, string> =
-    fm.microblog_media && typeof fm.microblog_media === "object"
-      ? { ...(fm.microblog_media as Record<string, string>) }
-      : {};
+  const fm: unknown = app.metadataCache.getFileCache(file)?.frontmatter;
+  const media = isRecord(fm) ? fm.microblog_media : undefined;
+  const cached = isStringRecord(media) ? { ...media } : {};
   const updated: Record<string, string> = { ...cached };
 
   const wikiPattern = /!\[\[([^\]]+?)\]\]/g;
@@ -95,7 +93,7 @@ async function processImages(
 
   if (JSON.stringify(updated) !== JSON.stringify(cached)) {
     await app.fileManager.processFrontMatter(file, (frontmatter) => {
-      frontmatter.microblog_media = updated;
+      (frontmatter as Record<string, unknown>).microblog_media = updated;
     });
   }
 
@@ -131,8 +129,17 @@ export async function writePublishedFrontmatter(
   result: PublishResult
 ): Promise<void> {
   await app.fileManager.processFrontMatter(file, (fm) => {
-    fm.microblog_url = result.url;
-    if (result.lastPublished) fm.microblog_published = result.lastPublished;
-    if (result.lastUpdated) fm.microblog_updated = result.lastUpdated;
+    const frontmatter = fm as Record<string, unknown>;
+    frontmatter.microblog_url = result.url;
+    if (result.lastPublished) frontmatter.microblog_published = result.lastPublished;
+    if (result.lastUpdated) frontmatter.microblog_updated = result.lastUpdated;
   });
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isStringRecord(value: unknown): value is Record<string, string> {
+  return isRecord(value) && Object.values(value).every((entry) => typeof entry === "string");
 }
