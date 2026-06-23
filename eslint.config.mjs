@@ -15,7 +15,7 @@ export default defineConfig([
         "warn",
         {
           brands: ["Micro.blog", "Mastodon", "Obsidian"],
-          acronyms: ["API"]
+          acronyms: ["API", "HTTP"]
         }
       ]
     }
