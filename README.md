@@ -4,6 +4,8 @@ Publish the active Obsidian note to Micro.blog with Micropub. The plugin support
 
 ## Install for Development
 
+> **Requires Node.js 20 or newer.** The lint and test toolchain (ESLint, `eslint-plugin-obsidianmd`, and the TypeScript-ESLint stack) depends on APIs introduced in Node 20.11. An `.nvmrc` is included — run `nvm use` to select the right version.
+
 1. Use a development vault, not your main vault.
 2. Place this folder at `.obsidian/plugins/microblog-publisher` in that vault.
 3. Install dependencies:

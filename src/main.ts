@@ -6,7 +6,7 @@ import {
   MicroblogSettings,
   MicroblogSettingTab
 } from "./settings";
-import { publishPost, updatePost } from "./micropub";
+import { publishPost, updatePost, isSecureEndpoint } from "./micropub";
 import { extractPost, writePublishedFrontmatter } from "./note";
 
 export default class MicroblogPublisher extends Plugin {
@@ -107,6 +107,14 @@ export default class MicroblogPublisher extends Plugin {
       new Notice("Set your micro.blog app token in settings first.");
       return;
     }
+    if (!isSecureEndpoint(settings.micropubEndpoint)) {
+      new Notice("Publishing blocked: endpoint must use https://.");
+      return;
+    }
+    if (settings.mediaEndpoint && !isSecureEndpoint(settings.mediaEndpoint)) {
+      new Notice("Publishing blocked: media endpoint must use https://.");
+      return;
+    }
     try {
       new Notice(`Publishing ${file.basename}…`);
       const post = await extractPost(this.app, file, settings);
@@ -114,7 +122,7 @@ export default class MicroblogPublisher extends Plugin {
       await writePublishedFrontmatter(this.app, file, result);
       new Notice(status === "draft" ? `Draft saved: ${result.url}` : `Published: ${result.url}`);
     } catch (err) {
-      console.error("microblog-publisher publish error", err);
+      console.error("microblog-publisher publish error", err instanceof Error ? err.message : String(err));
       new Notice(`Publish failed: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
@@ -123,6 +131,10 @@ export default class MicroblogPublisher extends Plugin {
     const settings = this.getAuthenticatedSettings();
     if (!settings) {
       new Notice("Set your micro.blog app token in settings first.");
+      return;
+    }
+    if (!isSecureEndpoint(settings.micropubEndpoint)) {
+      new Notice("Update blocked: endpoint must use https://.");
       return;
     }
     const url = this.getPublishedUrl(file);
@@ -140,7 +152,7 @@ export default class MicroblogPublisher extends Plugin {
       });
       new Notice(`Updated: ${url}`);
     } catch (err) {
-      console.error("microblog-publisher update error", err);
+      console.error("microblog-publisher update error", err instanceof Error ? err.message : String(err));
       new Notice(`Update failed: ${err instanceof Error ? err.message : String(err)}`);
     }
   }

@@ -1,5 +1,5 @@
 import { App, Notice, PluginSettingTab, SecretComponent, Setting } from "obsidian";
-import { fetchSyndicationTargets } from "./micropub";
+import { fetchSyndicationTargets, isSecureEndpoint } from "./micropub";
 import type MicroblogPublisher from "./main";
 
 export interface MicroblogSettings {
@@ -68,6 +68,9 @@ export class MicroblogSettingTab extends PluginSettingTab {
         text.setValue(this.plugin.settings.micropubEndpoint).onChange(async (value) => {
           this.plugin.settings.micropubEndpoint = value.trim();
           await this.plugin.saveSettings();
+          if (value.trim() && !isSecureEndpoint(value.trim())) {
+            new Notice("Warning: publishing endpoint should use https://. Publishing will be blocked over plain HTTP.");
+          }
         })
       );
 
@@ -78,6 +81,9 @@ export class MicroblogSettingTab extends PluginSettingTab {
         text.setValue(this.plugin.settings.mediaEndpoint).onChange(async (value) => {
           this.plugin.settings.mediaEndpoint = value.trim();
           await this.plugin.saveSettings();
+          if (value.trim() && !isSecureEndpoint(value.trim())) {
+            new Notice("Warning: media endpoint should use https://. Uploads will be blocked over plain HTTP.");
+          }
         })
       );
 
@@ -123,6 +129,10 @@ export class MicroblogSettingTab extends PluginSettingTab {
             new Notice("Set your app token first.");
             return;
           }
+          if (!isSecureEndpoint(this.plugin.settings.micropubEndpoint)) {
+            new Notice("Fetch blocked: publishing endpoint must use https://.");
+            return;
+          }
           try {
             const targets = await fetchSyndicationTargets({
               ...this.plugin.settings,
@@ -135,7 +145,7 @@ export class MicroblogSettingTab extends PluginSettingTab {
             const summary = targets.map((t) => `${t.name}: ${t.uid}`).join("\n");
             new Notice(`Syndication targets:\n${summary}`, 30000);
           } catch (err) {
-            console.error(err);
+            console.error("microblog-publisher fetch syndication error", err instanceof Error ? err.message : String(err));
             new Notice(`Fetch failed: ${err instanceof Error ? err.message : String(err)}`);
           }
         })
