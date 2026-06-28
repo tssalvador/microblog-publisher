@@ -11,6 +11,9 @@ export async function publishPost(
   post: ExtractedPost,
   status: "published" | "draft"
 ): Promise<PublishResult> {
+  if (!isSecureEndpoint(settings.micropubEndpoint)) {
+    throw new Error("Publish blocked: endpoint must use https://.");
+  }
   const payload = new URLSearchParams();
   payload.set("h", "entry");
   payload.set("content", post.content);
@@ -48,6 +51,9 @@ export async function updatePost(
   url: string,
   post: ExtractedPost
 ): Promise<void> {
+  if (!isSecureEndpoint(settings.micropubEndpoint)) {
+    throw new Error("Update blocked: endpoint must use https://.");
+  }
   const replace: Record<string, unknown[]> = {
     content: [post.content]
   };
@@ -78,6 +84,9 @@ export async function uploadMedia(
   data: ArrayBuffer,
   filename: string
 ): Promise<string> {
+  if (!isSecureEndpoint(settings.mediaEndpoint)) {
+    throw new Error("Media upload blocked: endpoint must use https://.");
+  }
   const boundary = "----microblog" + crypto.randomUUID();
   const mime = guessMime(filename);
 
@@ -121,6 +130,9 @@ export interface SyndicationTarget {
 export async function fetchSyndicationTargets(
   settings: AuthenticatedMicroblogSettings
 ): Promise<SyndicationTarget[]> {
+  if (!isSecureEndpoint(settings.micropubEndpoint)) {
+    throw new Error("Syndication query blocked: endpoint must use https://.");
+  }
   const url = `${settings.micropubEndpoint}?q=syndicate-to`;
   const res = await requestUrl({
     url,

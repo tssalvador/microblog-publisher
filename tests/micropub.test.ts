@@ -10,6 +10,7 @@ vi.mock("obsidian", () => ({
 import {
   isSecureEndpoint,
   publishPost,
+  updatePost,
   uploadMedia,
   fetchSyndicationTargets
 } from "../src/micropub";
@@ -93,6 +94,40 @@ describe("uploadMedia boundary (Finding 2: crypto.randomUUID)", () => {
     const b1 = requestUrl.mock.calls[0][0].headers["Content-Type"];
     const b2 = requestUrl.mock.calls[1][0].headers["Content-Type"];
     expect(b1).not.toEqual(b2);
+  });
+
+  it("blocks upload to non-HTTPS media endpoint", async () => {
+    const httpSettings = { ...settings, mediaEndpoint: "http://micro.blog/micropub/media" };
+    const buf = new TextEncoder().encode("img").buffer;
+    await expect(uploadMedia(httpSettings, buf, "a.png")).rejects.toThrow(
+      /Media upload blocked.*https/
+    );
+    expect(requestUrl).not.toHaveBeenCalled();
+  });
+});
+
+describe("HTTPS enforcement inside network helpers (token-leak prevention)", () => {
+  const httpSettings = { ...settings, micropubEndpoint: "http://micro.blog/micropub" };
+
+  it("publishPost throws and makes no request on non-HTTPS endpoint", async () => {
+    await expect(publishPost(httpSettings, post, "published")).rejects.toThrow(
+      /Publish blocked.*https/
+    );
+    expect(requestUrl).not.toHaveBeenCalled();
+  });
+
+  it("updatePost throws and makes no request on non-HTTPS endpoint", async () => {
+    await expect(updatePost(httpSettings, "https://micro.blog/p/1", post)).rejects.toThrow(
+      /Update blocked.*https/
+    );
+    expect(requestUrl).not.toHaveBeenCalled();
+  });
+
+  it("fetchSyndicationTargets throws and makes no request on non-HTTPS endpoint", async () => {
+    await expect(fetchSyndicationTargets(httpSettings)).rejects.toThrow(
+      /Syndication query blocked.*https/
+    );
+    expect(requestUrl).not.toHaveBeenCalled();
   });
 });
 

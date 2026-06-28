@@ -15,6 +15,7 @@
   "engines": {
     "node": ">=20.19"
   },
+  "packageManager": "npm@10.8.2",
   "devDependencies": {
     "@types/node": "^20.11.0",
     "@typescript-eslint/parser": "^8.59.3",
